@@ -56,6 +56,12 @@
       let f; while ((f = fieldRe.exec(body))) { if (fields.length < 30) fields.push(f[2]); }
       const methRe = /(?:public|private|protected)?\s*(?:static\s+)?[A-Za-z0-9_<>\[\]]+\s+([A-Za-z0-9_]+)\s*\([^)]*\)\s*(?:throws[^{]+)?\{/g;
       let mm; while ((mm = methRe.exec(body))) { if (!["if", "for", "while", "switch"].includes(mm[1])) methods.push(mm[1] + "()"); }
+      if (kind === "enum" && fields.length === 0) {
+        // enum constants (e.g. LOW, MEDIUM) are real members present in the code
+        const head = body.split(";")[0];
+        const constRe = /\b([A-Z][A-Z0-9_]*)(?:\s*\([^)]*\))?/g;
+        let cm; while ((cm = constRe.exec(head))) { if (fields.length < 30 && !fields.includes(cm[1])) fields.push(cm[1]); }
+      }
       classes.push({ name, parent, ifaces, fields: uniq(fields), methods: uniq(methods), kind, lang: "java" });
     }
     return classes;
@@ -110,25 +116,35 @@
     return { classes: all, notes };
   }
 
-  function toMermaid(classes) {
+  function toMermaid(classes, maxClasses) {
     if (!classes.length) return null;
+    const max = maxClasses || 50;
+    const shown = classes.slice(0, max);
     const lines = ["classDiagram"];
-    const names = new Set(classes.map((c) => c.name));
-    classes.forEach((c) => {
-      lines.push(`  class ${c.name} {`);
-      c.fields.slice(0, 20).forEach((f) => lines.push(`    +${sanitize(f)}`));
-      c.methods.slice(0, 25).forEach((mm) => lines.push(`    +${mm.replace(/[^A-Za-z0-9_()]/g, "")}`));
-      lines.push("  }");
+    if (classes.length > max) lines.push(`  %% showing ${max} of ${classes.length} classes - uncheck files to narrow`);
+    const names = new Set(shown.map((c) => c.name));
+    shown.forEach((c) => {
+      const fields = (c.fields || []).slice(0, 20).map((f) => `+${sanitize(f)}`);
+      const methods = (c.methods || []).slice(0, 25).map((mm) => `+${String(mm).replace(/[^A-Za-z0-9_()]/g, "")}`);
+      const members = [...fields, ...methods];
+      if (!members.length) {
+        // Mermaid v10 rejects empty `class X {}` with STRUCT_STOP error - emit bare declaration
+        lines.push(`  class ${c.name}`);
+      } else {
+        lines.push(`  class ${c.name} {`);
+        members.forEach((ml) => lines.push(`    ${ml}`));
+        lines.push("  }");
+      }
     });
-    classes.forEach((c) => {
+    shown.forEach((c) => {
       if (c.parent && names.has(c.parent)) lines.push(`  ${c.parent} <|-- ${c.name}`);
       (c.ifaces || []).forEach((i) => { if (names.has(i)) lines.push(`  ${i} <|.. ${c.name}`); });
     });
     // composition from field names matching class names (exact match only, noted as inferred)
-    const lower = {}; classes.forEach((c) => { lower[c.name.toLowerCase()] = c.name; });
+    const lower = {}; shown.forEach((c) => { lower[c.name.toLowerCase()] = c.name; });
     const edgeSet = new Set();
-    classes.forEach((c) => {
-      c.fields.forEach((f) => {
+    shown.forEach((c) => {
+      (c.fields || []).forEach((f) => {
         const key = String(f).toLowerCase().replace(/s$/, "");
         if (lower[key] && lower[key] !== c.name) edgeSet.add(`  ${c.name} --> ${lower[key]} : has`);
       });
