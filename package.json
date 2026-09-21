@@ -1,0 +1,6 @@
+{
+  "name": "diagram-creator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Accurate code-to-UML diagrams (Mermaid v10). No guessing."
+}

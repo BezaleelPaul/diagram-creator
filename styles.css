@@ -1,0 +1,52 @@
+:root {
+  --bg: #f6f7f9; --panel: #fff; --ink: #16181d; --muted: #636b76;
+  --line: #e2e5ea; --accent: #2563eb; --accent-ink: #fff;
+  --code: #0f172a; --radius: 12px;
+}
+[data-theme="dark"] {
+  --bg: #0b0e13; --panel: #131722; --ink: #e8ecf3; --muted: #9aa4b2;
+  --line: #232b3a; --accent: #60a5fa; --accent-ink: #0b0e13; --code: #e8ecf3;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, Segoe UI, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { font-size: 28px; color: var(--accent); }
+.brand h1 { margin: 0; font-size: 20px; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.top-actions { display: flex; gap: 8px; }
+.layout { display: grid; grid-template-columns: 420px 1fr; gap: 16px; padding: 16px 20px; max-width: 1400px; margin: 0 auto; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.panel h2 { margin: 0 0 10px; font-size: 16px; }
+.sub { font-weight: 400; color: var(--muted); font-size: 12px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tab { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.tab.active { background: var(--ink); color: var(--bg); }
+.file-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+.file-card .row { display: flex; gap: 8px; margin-bottom: 8px; }
+.file-card input[type="text"] { flex: 1; }
+input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+textarea.code { min-height: 140px; resize: vertical; }
+.hint { color: var(--muted); font-size: 12px; }
+button { background: var(--ink); color: var(--bg); border: 0; border-radius: 8px; padding: 9px 12px; cursor: pointer; font-weight: 600; }
+button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+button.primary { width: 100%; margin-top: 10px; background: var(--accent); color: var(--accent-ink); font-size: 15px; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; font-size: 14px; }
+.flow-label, .strict { display: block; margin: 8px 0; font-size: 13px; }
+.row { display: flex; gap: 8px; }
+.gh-files { max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 8px; font-size: 12px; }
+.result-card { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+.result-card header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.result-card h3 { margin: 0; font-size: 15px; }
+.result-card .actions { display: flex; gap: 6px; }
+.result-card .actions button { padding: 6px 9px; font-size: 12px; }
+pre.mmd { margin: 0; padding: 12px; background: #0f172a; color: #e2e8f0; overflow: auto; font-size: 12px; max-height: 240px; }
+[data-theme="dark"] pre.mmd { background: #000; }
+.mermaid-render { padding: 12px; background: #fff; }
+[data-theme="dark"] .mermaid-render { background: #fff; border-top: 1px solid var(--line); }
+.skip { padding: 12px; color: var(--muted); font-size: 13px; }
+.notes { border: 1px dashed var(--accent); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+.notes h3 { margin: 0 0 6px; }
+.empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 10px; padding: 20px; text-align: center; }
+footer { display: flex; justify-content: space-between; gap: 10px; padding: 12px 20px; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+@media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
