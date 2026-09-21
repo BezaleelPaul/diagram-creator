@@ -118,8 +118,53 @@
     dl.onclick = () => download(title + ".mmd", mmd);
     const svg = document.createElement("button"); svg.className = "ghost"; svg.textContent = "SVG";
     svg.onclick = () => { const s = render.querySelector("svg"); if (s) download(title + ".svg", new XMLSerializer().serializeToString(s)); };
-    acts.append(copy, dl, svg);
+    const png = document.createElement("button"); png.className = "ghost"; png.textContent = "PNG";
+    png.onclick = () => exportPng(render, title, png);
+    acts.append(copy, dl, svg, png);
     return div;
+  }
+
+  function exportPng(render, title, btn) {
+    const s = render.querySelector("svg");
+    if (!s) return;
+    const orig = btn.textContent; btn.textContent = "..."; btn.disabled = true;
+    const done = () => { btn.textContent = orig; btn.disabled = false; };
+    try {
+      const clone = s.cloneNode(true);
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      let w = parseFloat(clone.getAttribute("width")) || 0;
+      let h = parseFloat(clone.getAttribute("height")) || 0;
+      const vb = (clone.getAttribute("viewBox") || "").split(/\s+/).map(Number);
+      if ((!w || !h) && vb.length === 4 && vb[2] > 0 && vb[3] > 0) { w = vb[2]; h = vb[3]; }
+      if (!w || !h) { const r = s.getBoundingClientRect(); w = r.width || 1200; h = r.height || 800; }
+      clone.setAttribute("width", Math.ceil(w));
+      clone.setAttribute("height", Math.ceil(h));
+      const str = new XMLSerializer().serializeToString(clone);
+      const url = URL.createObjectURL(new Blob([str], { type: "image/svg+xml;charset=utf-8" }));
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const scale = 3; // crisp output for submissions
+          const c = document.createElement("canvas");
+          c.width = Math.ceil(w * scale); c.height = Math.ceil(h * scale);
+          const ctx = c.getContext("2d");
+          ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          c.toBlob((b) => {
+            done();
+            if (!b) { alert("PNG export failed in this browser - use SVG instead."); return; }
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(b);
+            a.download = title.replace(/[^A-Za-z0-9._-]/g, "_") + ".png";
+            a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          }, "image/png");
+        } catch (e) { done(); alert("PNG export failed: " + e.message); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); done(); alert("PNG export failed in this browser - use SVG instead."); };
+      img.src = url;
+    } catch (e) { done(); alert("PNG export failed: " + e.message); }
   }
 
   function download(name, text) {
