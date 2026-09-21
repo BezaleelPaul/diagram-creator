@@ -39,13 +39,16 @@
     </div>
 
     <div id="tab-github" class="tab-body" hidden>
-      <label>Public repo (like GitDiagram)
-        <input id="ghRepo" type="text" placeholder="owner/repo  e.g. expressjs/express" />
+      <label>Public repo (like GitDiagram) — owner/repo or full URL
+        <input id="ghRepo" type="text" placeholder="expressjs/express or https://github.com/expressjs/express" />
       </label>
       <div class="row">
         <label>Max files <input id="ghMax" type="number" value="25" min="1" max="80" /></label>
         <label>Include <input id="ghExt" type="text" value=".js,.ts,.py,.java,.sql,.prisma" /></label>
       </div>
+      <label>Path prefix — optional, narrows big repos (e.g. src/)
+        <input id="ghPrefix" type="text" placeholder="src/" />
+      </label>
       <button id="ghFetchBtn" type="button">Fetch repo file list</button>
       <p id="ghStatus" class="hint"></p>
       <div id="ghFiles" class="gh-files"></div>

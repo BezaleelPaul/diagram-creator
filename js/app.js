@@ -58,13 +58,15 @@
     const repo = $("ghRepo").value.trim();
     const st = $("ghStatus"); const box = $("ghFiles");
     box.innerHTML = "";
-    if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { st.textContent = "Use owner/repo format."; return; }
-    const [owner, name] = repo.split("/");
+    const btn = $("ghFetchBtn");
     const exts = $("ghExt").value.split(",").map((s) => s.trim()).filter(Boolean);
     const max = Math.min(80, Math.max(1, parseInt($("ghMax").value, 10) || 25));
+    const prefixEl = $("ghPrefix");
+    const prefix = prefixEl ? prefixEl.value.trim() : "";
+    btn.disabled = true;
     st.textContent = "Fetching…";
     try {
-      const files = await GithubFetch.fetchFiles(owner, name, exts, max, (t) => { st.textContent = t; });
+      const files = await GithubFetch.fetchFiles(repo, exts, max, (t) => { st.textContent = t; }, prefix);
       st.textContent = `Loaded ${files.length} files. Checked ones will be used for diagrams.`;
       files.forEach((f) => {
         const lab = document.createElement("label");
@@ -75,6 +77,7 @@
       });
       box._files = files;
     } catch (e) { st.textContent = "Error: " + e.message; }
+    finally { btn.disabled = false; }
   };
 
   function collectFiles() {
